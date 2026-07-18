@@ -1,0 +1,185 @@
+<main class="store-registration-page">
+  <section
+    class="store-registration-page__panel store-registration-page__panel--brand"
+    aria-label="Orientacoes de cadastro"
+  >
+    <span class="store-registration-page__eyebrow">Primeiro acesso</span>
+    <h1>Cadastre a loja para iniciar a operacao no gateway Payflow.</h1>
+    <p>
+      Preencha os dados da loja para enviar o cadastro inicial para a API e
+      liberar o retorno para a tela de login.
+    </p>
+
+    <div class="store-registration-page__highlights" aria-hidden="true">
+      <div>
+        <strong>Cadastro centralizado</strong>
+        <span
+          >Descricao, credenciais e webhook reunidos em um unico fluxo.</span
+        >
+      </div>
+      <div>
+        <strong>Retorno imediato</strong>
+        <span
+          >Ao concluir com sucesso, o usuario retorna para a autenticacao.</span
+        >
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="store-registration-page__panel store-registration-page__panel--form"
+    aria-label="Formulario de cadastro da loja"
+  >
+    <div class="store-registration-card">
+      <div class="store-registration-card__header">
+        <span class="store-registration-card__kicker">Cadastro da loja</span>
+        <h2>Primeiro Acesso</h2>
+        <p>Informe os dados necessarios para registrar a loja.</p>
+      </div>
+
+      <form
+        class="store-registration-form"
+        [formGroup]="storeForm"
+        (ngSubmit)="onSubmit()"
+      >
+        <div class="store-registration-form__field">
+          <label for="store-description">Descricao da Loja</label>
+          <input
+            id="store-description"
+            type="text"
+            formControlName="storeDescription"
+            aria-describedby="store-description-error"
+            placeholder="Ex.: Loja Centro"
+          />
+          @if (
+            storeDescriptionControl.errors && storeDescriptionControl.touched
+          ) {
+            <span
+              id="store-description-error"
+              class="store-registration-form__error"
+            >
+              Informe a descricao da loja com pelo menos 3 caracteres.
+            </span>
+          }
+        </div>
+
+        <div class="store-registration-form__field">
+          <label for="store-email">Email da Loja</label>
+          <input
+            id="store-email"
+            type="email"
+            formControlName="storeEmail"
+            autocomplete="email"
+            aria-describedby="store-email-error"
+            placeholder="loja@empresa.com"
+          />
+          @if (storeEmailControl.errors && storeEmailControl.touched) {
+            <span id="store-email-error" class="store-registration-form__error">
+              Informe um email valido.
+            </span>
+          }
+        </div>
+
+        <div class="store-registration-form__field">
+          <label for="store-password">Senha</label>
+          <input
+            id="store-password"
+            type="password"
+            formControlName="password"
+            autocomplete="new-password"
+            aria-describedby="store-password-error"
+            placeholder="Digite a senha da loja"
+          />
+          @if (passwordControl.errors && passwordControl.touched) {
+            <span
+              id="store-password-error"
+              class="store-registration-form__error"
+            >
+              Informe uma senha com pelo menos 6 caracteres.
+            </span>
+          }
+        </div>
+
+        <div class="store-registration-form__field">
+          <label for="store-webhook">Webhook</label>
+          <input
+            id="store-webhook"
+            type="url"
+            formControlName="webhook"
+            aria-describedby="store-webhook-error"
+            placeholder="https://empresa.com/webhook"
+          />
+          @if (webhookControl.errors && webhookControl.touched) {
+            <span
+              id="store-webhook-error"
+              class="store-registration-form__error"
+            >
+              Informe o endpoint de webhook.
+            </span>
+          }
+        </div>
+
+        <div class="store-registration-form__actions">
+          <button
+            type="submit"
+            class="store-registration-form__button store-registration-form__button--primary"
+            [disabled]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              Enviando...
+            } @else {
+              Enviar
+            }
+          </button>
+          <button
+            type="button"
+            class="store-registration-form__button store-registration-form__button--secondary"
+            (click)="onClear()"
+            [disabled]="isSubmitting()"
+          >
+            Limpar
+          </button>
+        </div>
+      </form>
+
+      @if (errorMessage(); as errorMessage) {
+        <p class="store-registration-card__feedback" aria-live="polite">
+          {{ errorMessage }}
+        </p>
+      }
+    </div>
+  </section>
+
+  @if (isSuccessModalOpen()) {
+    <div
+      class="store-registration-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="success-modal-title"
+    >
+      <div
+        class="store-registration-modal__backdrop"
+        (click)="closeSuccessModal()"
+      ></div>
+      <div class="store-registration-modal__content">
+        <button
+          type="button"
+          class="store-registration-modal__close"
+          aria-label="Fechar alerta"
+          (click)="closeSuccessModal()"
+        >
+          x
+        </button>
+        <h3 id="success-modal-title">Loja cadastrada com sucesso</h3>
+        <p>O cadastro foi concluido. Clique em OK para voltar ao login.</p>
+        <button
+          type="button"
+          class="store-registration-modal__confirm"
+          (click)="closeSuccessModal()"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  }
+</main>

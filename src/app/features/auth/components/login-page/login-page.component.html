@@ -1,0 +1,103 @@
+<main class="login-page">
+  <section
+    class="login-page__panel login-page__panel--brand"
+    aria-label="Apresentacao da plataforma"
+  >
+    <span class="login-page__eyebrow">Payflow Admin</span>
+    <h1>Gerencie lojas, acessos e operacao financeira em um unico painel.</h1>
+    <p>
+      Entre com suas credenciais para acessar o dashboard administrativo do
+      gateway de pagamento.
+    </p>
+
+    <div class="login-page__highlights" aria-hidden="true">
+      <div>
+        <strong>Operacao centralizada</strong>
+        <span>Monitore contas, status e configuracoes com mais agilidade.</span>
+      </div>
+      <div>
+        <strong>Primeiro acesso guiado</strong>
+        <span
+          >Prepare novas lojas e equipes sem depender de fluxos manuais.</span
+        >
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="login-page__panel login-page__panel--form"
+    aria-label="Formulario de login"
+  >
+    <div class="login-card">
+      <div class="login-card__header">
+        <span class="login-card__kicker">Acesso seguro</span>
+        <h2>Entrar</h2>
+        <p>Informe email e senha para continuar.</p>
+      </div>
+
+      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="login-form__field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            aria-describedby="email-error"
+            placeholder="voce@empresa.com"
+          />
+          @if (emailControl.errors && emailControl.touched) {
+            <span id="email-error" class="login-form__error"
+              >Informe um email valido.</span
+            >
+          }
+        </div>
+
+        <div class="login-form__field">
+          <label for="password">Senha</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            autocomplete="current-password"
+            aria-describedby="password-error"
+            placeholder="Digite sua senha"
+          />
+          @if (passwordControl.errors && passwordControl.touched) {
+            <span id="password-error" class="login-form__error">
+              Informe uma senha com pelo menos 6 caracteres.
+            </span>
+          }
+        </div>
+
+        <div class="login-form__actions">
+          <button
+            type="submit"
+            class="login-form__button login-form__button--primary"
+            [disabled]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              Entrando...
+            } @else {
+              Logar
+            }
+          </button>
+          <button
+            type="button"
+            class="login-form__button login-form__button--secondary"
+            (click)="onFirstAccess()"
+            [disabled]="isSubmitting()"
+          >
+            Primeiro Acesso
+          </button>
+        </div>
+      </form>
+
+      @if (feedbackMessage(); as feedbackMessage) {
+        <p class="login-card__feedback" aria-live="polite">
+          {{ feedbackMessage }}
+        </p>
+      }
+    </div>
+  </section>
+</main>

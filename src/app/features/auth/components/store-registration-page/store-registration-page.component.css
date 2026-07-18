@@ -1,0 +1,331 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  color: #1f2937;
+}
+
+.store-registration-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 500px);
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(227, 162, 76, 0.24),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #f5efe5 0%, #f9f4eb 48%, #efe4d2 100%);
+}
+
+.store-registration-page__panel {
+  padding: 3rem;
+}
+
+.store-registration-page__panel--brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.store-registration-page__panel--brand::after {
+  content: "";
+  width: 15rem;
+  height: 15rem;
+  position: absolute;
+  right: 3rem;
+  bottom: 3rem;
+  border-radius: 2.5rem;
+  background: linear-gradient(
+    145deg,
+    rgba(11, 79, 108, 0.9),
+    rgba(232, 141, 68, 0.7)
+  );
+  filter: blur(2px);
+  transform: rotate(16deg);
+}
+
+.store-registration-page__eyebrow,
+.store-registration-card__kicker {
+  width: fit-content;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(11, 79, 108, 0.08);
+  color: #0b4f6c;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.store-registration-page__panel--brand h1 {
+  max-width: 12ch;
+  margin: 0;
+  font-size: clamp(2.6rem, 5vw, 4.4rem);
+  line-height: 0.96;
+  color: #14213d;
+}
+
+.store-registration-page__panel--brand > p {
+  max-width: 38rem;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(20, 33, 61, 0.76);
+}
+
+.store-registration-page__highlights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 42rem;
+  position: relative;
+  z-index: 1;
+}
+
+.store-registration-page__highlights div {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(20, 33, 61, 0.1);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(10px);
+}
+
+.store-registration-page__highlights strong {
+  font-size: 1rem;
+  color: #14213d;
+}
+
+.store-registration-page__highlights span {
+  line-height: 1.5;
+  color: rgba(20, 33, 61, 0.72);
+}
+
+.store-registration-page__panel--form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.store-registration-card {
+  width: min(100%, 460px);
+  padding: 2rem;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 24px 60px rgba(20, 33, 61, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.store-registration-card__header {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 1.75rem;
+}
+
+.store-registration-card__header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #14213d;
+}
+
+.store-registration-card__header p,
+.store-registration-card__feedback,
+.store-registration-modal__content p {
+  margin: 0;
+  line-height: 1.6;
+  color: rgba(20, 33, 61, 0.72);
+}
+
+.store-registration-form {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.store-registration-form__field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.store-registration-form__field label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #14213d;
+}
+
+.store-registration-form__field input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(20, 33, 61, 0.15);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  font: inherit;
+  color: #14213d;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.store-registration-form__field input:focus {
+  outline: none;
+  border-color: #0b4f6c;
+  box-shadow: 0 0 0 4px rgba(11, 79, 108, 0.12);
+  transform: translateY(-1px);
+}
+
+.store-registration-form__field input::placeholder {
+  color: rgba(20, 33, 61, 0.42);
+}
+
+.store-registration-form__error {
+  font-size: 0.86rem;
+  color: #b42318;
+}
+
+.store-registration-form__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.35rem;
+}
+
+.store-registration-form__button,
+.store-registration-modal__confirm,
+.store-registration-modal__close {
+  font: inherit;
+}
+
+.store-registration-form__button {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.store-registration-form__button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.store-registration-form__button:focus-visible,
+.store-registration-modal__confirm:focus-visible,
+.store-registration-modal__close:focus-visible {
+  outline: 3px solid rgba(11, 79, 108, 0.24);
+  outline-offset: 2px;
+}
+
+.store-registration-form__button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.store-registration-form__button--primary,
+.store-registration-modal__confirm {
+  color: #fefcf8;
+  background: linear-gradient(135deg, #0b4f6c, #145374);
+  box-shadow: 0 12px 28px rgba(11, 79, 108, 0.22);
+}
+
+.store-registration-form__button--secondary {
+  color: #14213d;
+  background: #f7efe4;
+  border: 1px solid rgba(20, 33, 61, 0.12);
+}
+
+.store-registration-card__feedback {
+  margin-top: 1rem;
+}
+
+.store-registration-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 10;
+}
+
+.store-registration-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 33, 61, 0.45);
+  backdrop-filter: blur(3px);
+}
+
+.store-registration-modal__content {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 2rem, 420px);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: #fffdf9;
+  box-shadow: 0 26px 64px rgba(20, 33, 61, 0.18);
+  display: grid;
+  gap: 1rem;
+}
+
+.store-registration-modal__content h3 {
+  margin: 0;
+  padding-right: 2rem;
+  font-size: 1.5rem;
+  color: #14213d;
+}
+
+.store-registration-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(20, 33, 61, 0.08);
+  color: #14213d;
+  cursor: pointer;
+}
+
+.store-registration-modal__confirm {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 960px) {
+  .store-registration-page {
+    grid-template-columns: 1fr;
+  }
+
+  .store-registration-page__panel--brand::after {
+    display: none;
+  }
+
+  .store-registration-page__highlights {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .store-registration-page__panel {
+    padding: 1.5rem;
+  }
+
+  .store-registration-card,
+  .store-registration-modal__content {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+
+  .store-registration-form__actions {
+    grid-template-columns: 1fr;
+  }
+}
