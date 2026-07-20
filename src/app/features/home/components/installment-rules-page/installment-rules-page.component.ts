@@ -29,16 +29,25 @@ export class InstallmentRulesPageComponent {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly installmentRulesService = inject(InstallmentRulesService);
 
+  private readonly emptyRuleFormValue = {
+    discount: '',
+    installments: '',
+    minimumValue: '',
+  };
+
   readonly isLoading = signal(true);
   readonly isSubmitting = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly submitSuccess = signal<string | null>(null);
   readonly rules = signal<InstallmentRule[]>([]);
+  readonly isEditingRule = signal(false);
+  readonly isRemoveModalOpen = signal(false);
+  readonly selectedRuleId = signal<string | null>(null);
 
   readonly ruleForm = this.formBuilder.nonNullable.group({
-    discount: ['', [Validators.required]],
-    installments: ['', [Validators.required]],
-    minimumValue: ['', [Validators.required]],
+    discount: [this.emptyRuleFormValue.discount, [Validators.required]],
+    installments: [this.emptyRuleFormValue.installments, [Validators.required]],
+    minimumValue: [this.emptyRuleFormValue.minimumValue, [Validators.required]],
   });
 
   constructor() {
@@ -48,45 +57,91 @@ export class InstallmentRulesPageComponent {
   get hasRules(): boolean {
     return this.rules().length > 0;
   }
-
+  get showForm(): boolean {
+    return this.isEditingRule() || !this.hasRules;
+  }
   get discountControl() {
     return this.ruleForm.controls.discount;
   }
-
   get installmentsControl() {
     return this.ruleForm.controls.installments;
   }
-
   get minimumValueControl() {
     return this.ruleForm.controls.minimumValue;
   }
 
   onMinimumValueInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const digitsOnly = input.value.replace(/\D/g, '');
-    const numericValue = Number(digitsOnly) / 100;
-
-    if (digitsOnly.length === 0) {
-      this.ruleForm.controls.minimumValue.setValue('');
-      return;
-    }
-
-    const formattedValue = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(numericValue);
-
-    this.ruleForm.controls.minimumValue.setValue(formattedValue);
+    const digitsOnly = (event.target as HTMLInputElement).value.replace(
+      /\D/g,
+      '',
+    );
+    if (!digitsOnly)
+      return void this.ruleForm.controls.minimumValue.setValue('');
+    this.ruleForm.controls.minimumValue.setValue(
+      new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(Number(digitsOnly) / 100),
+    );
   }
 
   onEdit(ruleId: string): void {
-    this.loadError.set(`Edicao da regra ${ruleId} ainda nao foi implementada.`);
+    const rule = this.rules().find((item) => item.id === ruleId);
+
+    if (!rule) {
+      this.loadError.set(`Nao foi possivel carregar a regra ${ruleId}.`);
+      return;
+    }
+
+    this.ruleForm.patchValue({
+      discount: rule.discount,
+      installments: rule.installments,
+      minimumValue: rule.minimumValue,
+    });
+    this.isEditingRule.set(true);
+    this.loadError.set(null);
+    this.submitSuccess.set(null);
   }
 
-  onRemove(ruleId: string): void {
-    this.loadError.set(
-      `Remocao da regra ${ruleId} ainda nao foi implementada.`,
-    );
+  cancelEdit(): void {
+    this.isEditingRule.set(false);
+    this.ruleForm.reset(this.emptyRuleFormValue);
+    this.loadError.set(null);
+    this.submitSuccess.set(null);
+  }
+
+  openRemoveModal(ruleId: string): void {
+    this.selectedRuleId.set(ruleId);
+    this.isRemoveModalOpen.set(true);
+  }
+
+  backToForm(): void {
+    this.isRemoveModalOpen.set(false);
+    this.selectedRuleId.set(null);
+  }
+
+  onRemove(ruleId?: string): void {
+    const id = ruleId ?? this.selectedRuleId();
+
+    if (!id) return;
+
+    this.isRemoveModalOpen.set(false);
+    this.installmentRulesService
+      .deleteById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.selectedRuleId.set(null);
+          this.loadRules();
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Erro ao remover regra:', error);
+          this.selectedRuleId.set(null);
+          this.loadError.set(
+            `Falha ao remover a regra ${id}. Tente novamente.`,
+          );
+        },
+      });
   }
 
   onLogout(): void {
@@ -95,11 +150,7 @@ export class InstallmentRulesPageComponent {
   }
 
   onClear(): void {
-    this.ruleForm.reset({
-      discount: '',
-      installments: '',
-      minimumValue: '',
-    });
+    this.ruleForm.reset(this.emptyRuleFormValue);
     this.loadError.set(null);
     this.submitSuccess.set(null);
   }
@@ -130,7 +181,7 @@ export class InstallmentRulesPageComponent {
       minimalAmount: this.parseCurrencyToNumber(
         this.minimumValueControl.getRawValue(),
       ),
-      storeId: storeId,
+      storeId,
     };
 
     this.isSubmitting.set(true);
@@ -145,7 +196,13 @@ export class InstallmentRulesPageComponent {
       )
       .subscribe({
         next: () => {
-          this.submitSuccess.set('Regra cadastrada com sucesso.');
+          this.submitSuccess.set(
+            this.isEditingRule()
+              ? 'Regra atualizada com sucesso.'
+              : 'Regra cadastrada com sucesso.',
+          );
+          this.isEditingRule.set(false);
+          this.ruleForm.reset(this.emptyRuleFormValue);
           this.loadRules();
         },
         error: (error: HttpErrorResponse) => {
@@ -167,16 +224,20 @@ export class InstallmentRulesPageComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const apiRules: InstallmentRule[] = [
-            {
-              id: response.id,
-              discount: response.fees,
-              installments: response.installments,
-              minimumValue: this.formatCurrencyValue(response.minimalAmount),
-            },
-          ];
-
-          this.rules.set(apiRules);
+          this.rules.set(
+            response == null
+              ? []
+              : [
+                  {
+                    id: response.id,
+                    discount: response.fees,
+                    installments: response.installments,
+                    minimumValue: this.formatCurrencyValue(
+                      response.minimalAmount,
+                    ),
+                  },
+                ],
+          );
           this.isLoading.set(false);
         },
         error: () => {
@@ -191,58 +252,39 @@ export class InstallmentRulesPageComponent {
 
   private parseCurrencyToNumber(value: string): number {
     const digitsOnly = value.replace(/\D/g, '');
-
-    if (!digitsOnly) {
-      return 0;
-    }
-
-    return Number(digitsOnly) / 100;
+    return !digitsOnly ? 0 : Number(digitsOnly) / 100;
   }
 
   private formatCurrencyValue(value: unknown): string {
-    const numericValue = typeof value === 'number' ? value : Number(value);
-
-    if (!Number.isFinite(numericValue)) {
-      return 'R$ 0,00';
-    }
-
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(numericValue);
+    const num = typeof value === 'number' ? value : Number(value);
+    return !Number.isFinite(num)
+      ? 'R$ 0,00'
+      : new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }).format(num);
   }
 
   private parseDecimalValue(value: string): number {
-    const normalizedValue = value.replace('%', '').trim().replace(',', '.');
-    const parsedValue = Number(normalizedValue);
-
-    return Number.isFinite(parsedValue) ? parsedValue : 0;
+    const parsed = Number(value.replace('%', '').trim().replace(',', '.'));
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
   private parseIntegerValue(value: string): number {
-    const parsedValue = Number.parseInt(value, 10);
-
-    return Number.isFinite(parsedValue) ? parsedValue : 0;
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
   private getRequestErrorMessage(error: HttpErrorResponse): string | null {
-    if (!error.error) {
-      return null;
-    }
+    const err = error.error;
 
-    if (typeof error.error === 'string') {
-      return error.error;
-    }
-
-    if (
-      typeof error.error === 'object' &&
-      error.error !== null &&
-      'message' in error.error &&
-      typeof error.error.message === 'string'
-    ) {
-      return error.error.message;
-    }
-
-    return null;
+    if (!err) return null;
+    if (typeof err === 'string') return err;
+    return typeof err === 'object' &&
+      err !== null &&
+      'message' in err &&
+      typeof err.message === 'string'
+      ? err.message
+      : null;
   }
 }

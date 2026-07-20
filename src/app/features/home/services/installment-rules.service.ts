@@ -26,6 +26,14 @@ export class InstallmentRulesService {
     return this.http.get<any>(this.apiUrl, { headers });
   }
 
+  deleteById(ruleId: string) {
+    const uri = `${this.apiUrl}/${ruleId}`;
+    const token = this.authSessionService.getToken();
+    const headers = this.buildHeaders(token);
+
+    return this.http.delete<any>(uri, {headers});
+  }
+
   createStoreConfig(payload: InstallmentConfigPayload): Observable<unknown> {
     const token = this.authSessionService.getToken();
     const headers = this.buildHeaders(token);
