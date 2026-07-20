@@ -44,50 +44,14 @@
         <p class="rules-page__error" aria-live="polite">{{ loadError }}</p>
       }
 
-      @if (hasRules) {
-        <div
-          class="rules-list"
-          role="list"
-          aria-label="Lista de regras cadastradas"
-        >
-          @for (rule of rules(); track rule.id) {
-            <article class="rules-list__item" role="listitem">
-              <div class="rules-list__grid">
-                <div>
-                  <span class="rules-list__label">Desconto</span>
-                  <strong>{{ rule.discount }}</strong>
-                </div>
-                <div>
-                  <span class="rules-list__label">Parcelas</span>
-                  <strong>{{ rule.installments }}</strong>
-                </div>
-                <div>
-                  <span class="rules-list__label">Valor Minimo</span>
-                  <strong>{{ rule.minimumValue }}</strong>
-                </div>
-              </div>
-
-              <div class="rules-list__actions">
-                <button
-                  type="button"
-                  class="rules-button rules-button--ghost"
-                  (click)="onEdit(rule.id)"
-                >
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  class="rules-button rules-button--danger"
-                  (click)="onRemove(rule.id)"
-                >
-                  Remover
-                </button>
-              </div>
-            </article>
-          }
-        </div>
-      } @else {
+      @if (showForm) {
         <form class="rules-form" [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
+          @if (isEditingRule()) {
+            <p class="rules-page__helper">
+              Edite os campos abaixo e salve para atualizar a regra.
+            </p>
+          }
+
           <div class="rules-form__field">
             <label for="discount">Desconto</label>
             <input
@@ -142,14 +106,25 @@
                 Enviar
               }
             </button>
-            <button
-              type="button"
-              class="rules-button rules-button--ghost"
-              (click)="onClear()"
-              [disabled]="isSubmitting()"
-            >
-              Limpar
-            </button>
+            @if (isEditingRule()) {
+              <button
+                type="button"
+                class="rules-button rules-button--ghost"
+                (click)="cancelEdit()"
+                [disabled]="isSubmitting()"
+              >
+                Cancelar
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="rules-button rules-button--ghost"
+                (click)="onClear()"
+                [disabled]="isSubmitting()"
+              >
+                Limpar
+              </button>
+            }
           </div>
 
           @if (submitSuccess(); as submitSuccess) {
@@ -158,7 +133,88 @@
             </p>
           }
         </form>
+      } @else {
+        <div
+          class="rules-list"
+          role="list"
+          aria-label="Lista de regras cadastradas"
+        >
+          @for (rule of rules(); track rule.id) {
+            <article class="rules-list__item" role="listitem">
+              <div class="rules-list__grid">
+                <div>
+                  <span class="rules-list__label">Desconto</span>
+                  <strong>{{ rule.discount }}</strong>
+                </div>
+                <div>
+                  <span class="rules-list__label">Parcelas</span>
+                  <strong>{{ rule.installments }}</strong>
+                </div>
+                <div>
+                  <span class="rules-list__label">Valor Minimo</span>
+                  <strong>{{ rule.minimumValue }}</strong>
+                </div>
+              </div>
+
+              <div class="rules-list__actions">
+                <button
+                  type="button"
+                  class="rules-button rules-button--ghost"
+                  (click)="onEdit(rule.id)"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="rules-button rules-button--danger"
+                  (click)="openRemoveModal(rule.id)"
+                >
+                  Remover
+                </button>
+              </div>
+            </article>
+          }
+        </div>
       }
     }
   </section>
+
+  @if (isRemoveModalOpen()) {
+    <div
+      class="rules-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="remove-modal-title"
+    >
+      <div class="rules-modal__backdrop" (click)="backToForm()"></div>
+      <div class="rules-modal__content">
+        <button
+          type="button"
+          class="rules-modal__close"
+          aria-label="Fechar alerta"
+          (click)="backToForm()"
+        >
+          x
+        </button>
+        <h3 id="remove-modal-title">Confirmar exclusão</h3>
+        <p>Tem certeza que deseja excluir essa regra?</p>
+        <div class="rules-modal__actions">
+          <button
+            type="button"
+            class="rules-button rules-button--danger"
+            (click)="onRemove()"
+          >
+            Sim
+          </button>
+          <button
+            type="button"
+            class="rules-button rules-button--ghost"
+            (click)="backToForm()"
+          >
+            Não
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </main>
