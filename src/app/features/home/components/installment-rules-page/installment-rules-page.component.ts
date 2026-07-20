@@ -54,17 +54,34 @@ export class InstallmentRulesPageComponent {
     this.loadRules();
   }
 
-  get hasRules(): boolean { return this.rules().length > 0; }
-  get showForm(): boolean { return this.isEditingRule() || !this.hasRules; }
-  get discountControl() { return this.ruleForm.controls.discount; }
-  get installmentsControl() { return this.ruleForm.controls.installments; }
-  get minimumValueControl() { return this.ruleForm.controls.minimumValue; }
+  get hasRules(): boolean {
+    return this.rules().length > 0;
+  }
+  get showForm(): boolean {
+    return this.isEditingRule() || !this.hasRules;
+  }
+  get discountControl() {
+    return this.ruleForm.controls.discount;
+  }
+  get installmentsControl() {
+    return this.ruleForm.controls.installments;
+  }
+  get minimumValueControl() {
+    return this.ruleForm.controls.minimumValue;
+  }
 
   onMinimumValueInput(event: Event): void {
-    const digitsOnly = (event.target as HTMLInputElement).value.replace(/\D/g, '');
-    if (!digitsOnly) return void this.ruleForm.controls.minimumValue.setValue('');
+    const digitsOnly = (event.target as HTMLInputElement).value.replace(
+      /\D/g,
+      '',
+    );
+    if (!digitsOnly)
+      return void this.ruleForm.controls.minimumValue.setValue('');
     this.ruleForm.controls.minimumValue.setValue(
-      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(digitsOnly) / 100),
+      new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(Number(digitsOnly) / 100),
     );
   }
 
@@ -120,7 +137,9 @@ export class InstallmentRulesPageComponent {
         error: (error: HttpErrorResponse) => {
           console.error('Erro ao remover regra:', error);
           this.selectedRuleId.set(null);
-          this.loadError.set(`Falha ao remover a regra ${id}. Tente novamente.`);
+          this.loadError.set(
+            `Falha ao remover a regra ${id}. Tente novamente.`,
+          );
         },
       });
   }
@@ -147,15 +166,21 @@ export class InstallmentRulesPageComponent {
     const storeId = this.installmentRulesService.getLoggedStoreId();
 
     if (!storeId) {
-      this.loadError.set('Store ID do usuario logado nao encontrado. Faca login novamente.');
+      this.loadError.set(
+        'Store ID do usuario logado nao encontrado. Faca login novamente.',
+      );
       this.submitSuccess.set(null);
       return;
     }
 
     const payload = {
-      installments: this.parseIntegerValue(this.installmentsControl.getRawValue()),
+      installments: this.parseIntegerValue(
+        this.installmentsControl.getRawValue(),
+      ),
       fees: this.parseDecimalValue(this.discountControl.getRawValue()),
-      minimalAmount: this.parseCurrencyToNumber(this.minimumValueControl.getRawValue()),
+      minimalAmount: this.parseCurrencyToNumber(
+        this.minimumValueControl.getRawValue(),
+      ),
       storeId,
     };
 
@@ -165,11 +190,16 @@ export class InstallmentRulesPageComponent {
 
     this.installmentRulesService
       .createStoreConfig(payload)
-      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.isSubmitting.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isSubmitting.set(false)),
+      )
       .subscribe({
         next: () => {
           this.submitSuccess.set(
-            this.isEditingRule() ? 'Regra atualizada com sucesso.' : 'Regra cadastrada com sucesso.',
+            this.isEditingRule()
+              ? 'Regra atualizada com sucesso.'
+              : 'Regra cadastrada com sucesso.',
           );
           this.isEditingRule.set(false);
           this.ruleForm.reset(this.emptyRuleFormValue);
@@ -178,7 +208,8 @@ export class InstallmentRulesPageComponent {
         error: (error: HttpErrorResponse) => {
           this.submitSuccess.set(null);
           this.loadError.set(
-            this.getRequestErrorMessage(error) ?? 'Nao foi possivel cadastrar a regra de parcelamento.',
+            this.getRequestErrorMessage(error) ??
+              'Nao foi possivel cadastrar a regra de parcelamento.',
           );
         },
       });
@@ -193,17 +224,27 @@ export class InstallmentRulesPageComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.rules.set(response == null ? [] : [{
-            id: response.id,
-            discount: response.fees,
-            installments: response.installments,
-            minimumValue: this.formatCurrencyValue(response.minimalAmount),
-          }]);
+          this.rules.set(
+            response == null
+              ? []
+              : [
+                  {
+                    id: response.id,
+                    discount: response.fees,
+                    installments: response.installments,
+                    minimumValue: this.formatCurrencyValue(
+                      response.minimalAmount,
+                    ),
+                  },
+                ],
+          );
           this.isLoading.set(false);
         },
         error: () => {
           this.isLoading.set(false);
-          this.loadError.set('Nao foi possivel carregar as regras de parcelamento.');
+          this.loadError.set(
+            'Nao foi possivel carregar as regras de parcelamento.',
+          );
           this.rules.set([]);
         },
       });
@@ -218,7 +259,10 @@ export class InstallmentRulesPageComponent {
     const num = typeof value === 'number' ? value : Number(value);
     return !Number.isFinite(num)
       ? 'R$ 0,00'
-      : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
+      : new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }).format(num);
   }
 
   private parseDecimalValue(value: string): number {
@@ -236,7 +280,10 @@ export class InstallmentRulesPageComponent {
 
     if (!err) return null;
     if (typeof err === 'string') return err;
-    return typeof err === 'object' && err !== null && 'message' in err && typeof err.message === 'string'
+    return typeof err === 'object' &&
+      err !== null &&
+      'message' in err &&
+      typeof err.message === 'string'
       ? err.message
       : null;
   }
