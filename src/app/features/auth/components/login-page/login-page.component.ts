@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
+import { AuthSessionService } from '../../../../services/auth-session.service';
 
 @Component({
   selector: 'app-login-page',
@@ -25,6 +26,7 @@ export class LoginPageComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
+  private readonly authSessionService = inject(AuthSessionService);
 
   readonly feedbackMessage = signal<string | null>(null);
   readonly isSubmitting = signal(false);
@@ -62,7 +64,9 @@ export class LoginPageComponent {
         finalize(() => this.isSubmitting.set(false)),
       )
       .subscribe({
-        next: () => {
+        next: (result) => {
+          let storeId: string = (result as any).id.toString();
+          this.authSessionService.setStoreId(storeId);
           void this.router.navigate(['/home']);
         },
         error: (error: HttpErrorResponse) => {

@@ -1,0 +1,164 @@
+<main class="rules-page" aria-label="Regra de parcelamento">
+  <header class="rules-page__header" aria-label="Menu principal">
+    <nav class="rules-page__menu">
+      <a
+        routerLink="/home"
+        routerLinkActive="rules-page__menu-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="rules-page__menu-link"
+      >
+        Home
+      </a>
+      <a
+        routerLink="/home/regra-parcelamento"
+        routerLinkActive="rules-page__menu-link--active"
+        class="rules-page__menu-link"
+      >
+        Regra de Parcelamento
+      </a>
+      <a
+        routerLink="/home/regra-bloqueio"
+        routerLinkActive="rules-page__menu-link--active"
+        class="rules-page__menu-link"
+      >
+        Regra de Bloqueio
+      </a>
+      <button
+        type="button"
+        class="rules-page__menu-link rules-page__menu-link--button"
+        (click)="onLogout()"
+      >
+        Logout
+      </button>
+    </nav>
+  </header>
+
+  <section class="rules-page__card">
+    <span class="rules-page__kicker">Payflow Admin</span>
+    <h1>Regra de Parcelamento</h1>
+
+    @if (isLoading()) {
+      <p class="rules-page__helper">Carregando regras de parcelamento...</p>
+    } @else {
+      @if (loadError(); as loadError) {
+        <p class="rules-page__error" aria-live="polite">{{ loadError }}</p>
+      }
+
+      @if (hasRules) {
+        <div
+          class="rules-list"
+          role="list"
+          aria-label="Lista de regras cadastradas"
+        >
+          @for (rule of rules(); track rule.id) {
+            <article class="rules-list__item" role="listitem">
+              <div class="rules-list__grid">
+                <div>
+                  <span class="rules-list__label">Desconto</span>
+                  <strong>{{ rule.discount }}</strong>
+                </div>
+                <div>
+                  <span class="rules-list__label">Parcelas</span>
+                  <strong>{{ rule.installments }}</strong>
+                </div>
+                <div>
+                  <span class="rules-list__label">Valor Minimo</span>
+                  <strong>{{ rule.minimumValue }}</strong>
+                </div>
+              </div>
+
+              <div class="rules-list__actions">
+                <button
+                  type="button"
+                  class="rules-button rules-button--ghost"
+                  (click)="onEdit(rule.id)"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="rules-button rules-button--danger"
+                  (click)="onRemove(rule.id)"
+                >
+                  Remover
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <form class="rules-form" [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
+          <div class="rules-form__field">
+            <label for="discount">Desconto</label>
+            <input
+              id="discount"
+              type="text"
+              formControlName="discount"
+              placeholder="Ex.: 5%"
+            />
+            @if (discountControl.errors && discountControl.touched) {
+              <span class="rules-form__error">Informe o desconto.</span>
+            }
+          </div>
+
+          <div class="rules-form__field">
+            <label for="installments">Parcelas</label>
+            <input
+              id="installments"
+              type="number"
+              formControlName="installments"
+              placeholder="Ex.: 3"
+            />
+            @if (installmentsControl.errors && installmentsControl.touched) {
+              <span class="rules-form__error"
+                >Informe a quantidade de parcelas.</span
+              >
+            }
+          </div>
+
+          <div class="rules-form__field">
+            <label for="minimum-value">Valor Minimo</label>
+            <input
+              id="minimum-value"
+              type="text"
+              formControlName="minimumValue"
+              placeholder="R$ 0,00"
+              (input)="onMinimumValueInput($event)"
+            />
+            @if (minimumValueControl.errors && minimumValueControl.touched) {
+              <span class="rules-form__error">Informe o valor minimo.</span>
+            }
+          </div>
+
+          <div class="rules-form__actions">
+            <button
+              type="submit"
+              class="rules-button rules-button--primary"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                Enviando...
+              } @else {
+                Enviar
+              }
+            </button>
+            <button
+              type="button"
+              class="rules-button rules-button--ghost"
+              (click)="onClear()"
+              [disabled]="isSubmitting()"
+            >
+              Limpar
+            </button>
+          </div>
+
+          @if (submitSuccess(); as submitSuccess) {
+            <p class="rules-page__success" aria-live="polite">
+              {{ submitSuccess }}
+            </p>
+          }
+        </form>
+      }
+    }
+  </section>
+</main>

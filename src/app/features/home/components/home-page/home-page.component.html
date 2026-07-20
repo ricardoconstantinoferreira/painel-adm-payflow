@@ -1,7 +1,41 @@
 <main class="home-page" aria-label="Pagina inicial">
+  <header class="home-page__header" aria-label="Menu principal">
+    <nav class="home-page__menu">
+      <a
+        routerLink="/home"
+        routerLinkActive="home-page__menu-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="home-page__menu-link"
+      >
+        Home
+      </a>
+      <a
+        routerLink="/home/regra-parcelamento"
+        routerLinkActive="home-page__menu-link--active"
+        class="home-page__menu-link"
+      >
+        Regra de Parcelamento
+      </a>
+      <a
+        routerLink="/home/regra-bloqueio"
+        routerLinkActive="home-page__menu-link--active"
+        class="home-page__menu-link"
+      >
+        Regra de Bloqueio
+      </a>
+      <button
+        type="button"
+        class="home-page__menu-link home-page__menu-link--button"
+        (click)="onLogout()"
+      >
+        Logout
+      </button>
+    </nav>
+  </header>
+
   <section class="home-page__card">
     <span class="home-page__kicker">Payflow Admin</span>
-    <h1>Home</h1>
-    <p>Login realizado com sucesso. Bem-vindo ao painel administrativo.</p>
+    <h1>{{ pageTitle }}</h1>
+    <p>{{ pageDescription }}</p>
   </section>
 </main>
