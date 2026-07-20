@@ -19,11 +19,11 @@ export class InstallmentRulesService {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly apiUrl = 'http://127.0.1:8080/api/payflow/store/config';
 
-  getStoreConfig(): Observable<unknown> {
+  getStoreConfig(): Observable<any> {
     const token = this.authSessionService.getToken();
     const headers = this.buildHeaders(token);
 
-    return this.http.get<unknown>(this.apiUrl, { headers });
+    return this.http.get<any>(this.apiUrl, { headers });
   }
 
   createStoreConfig(payload: InstallmentConfigPayload): Observable<unknown> {

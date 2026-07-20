@@ -167,7 +167,16 @@ export class InstallmentRulesPageComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.rules.set(this.mapRules(response));
+          const apiRules: InstallmentRule[] = [
+            {
+              id: response.id,
+              discount: response.fees,
+              installments: response.installments,
+              minimumValue: this.formatCurrencyValue(response.minimalAmount),
+            },
+          ];
+
+          this.rules.set(apiRules);
           this.isLoading.set(false);
         },
         error: () => {
@@ -188,6 +197,19 @@ export class InstallmentRulesPageComponent {
     }
 
     return Number(digitsOnly) / 100;
+  }
+
+  private formatCurrencyValue(value: unknown): string {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+
+    if (!Number.isFinite(numericValue)) {
+      return 'R$ 0,00';
+    }
+
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(numericValue);
   }
 
   private parseDecimalValue(value: string): number {
@@ -222,55 +244,5 @@ export class InstallmentRulesPageComponent {
     }
 
     return null;
-  }
-
-  private mapRules(response: unknown): InstallmentRule[] {
-    const possibleRules = this.extractRules(response);
-
-    return possibleRules.map((rule, index) => {
-      const normalizedRule = rule as Record<string, unknown>;
-      const id = String(
-        normalizedRule['id'] ?? normalizedRule['ruleId'] ?? index + 1,
-      );
-
-      return {
-        id,
-        discount: String(
-          normalizedRule['discount'] ?? normalizedRule['desconto'] ?? '-',
-        ),
-        installments: String(
-          normalizedRule['installments'] ??
-            normalizedRule['parcelas'] ??
-            normalizedRule['installmentCount'] ??
-            '-',
-        ),
-        minimumValue: String(
-          normalizedRule['minimumValue'] ??
-            normalizedRule['valorMinimo'] ??
-            normalizedRule['minValue'] ??
-            '-',
-        ),
-      };
-    });
-  }
-
-  private extractRules(response: unknown): unknown[] {
-    if (Array.isArray(response)) {
-      return response;
-    }
-
-    if (response && typeof response === 'object') {
-      const responseObject = response as Record<string, unknown>;
-      const rulesField =
-        responseObject['rules'] ??
-        responseObject['installmentRules'] ??
-        responseObject['parcelamento'];
-
-      if (Array.isArray(rulesField)) {
-        return rulesField;
-      }
-    }
-
-    return [];
   }
 }
