@@ -1,0 +1,200 @@
+<main class="rules-page" aria-label="Regra de bloqueio">
+  <header class="rules-page__header" aria-label="Menu principal">
+    <nav class="rules-page__menu">
+      <a
+        routerLink="/home"
+        routerLinkActive="rules-page__menu-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="rules-page__menu-link"
+      >
+        Home
+      </a>
+      <a
+        routerLink="/home/regra-parcelamento"
+        routerLinkActive="rules-page__menu-link--active"
+        class="rules-page__menu-link"
+      >
+        Regra de Parcelamento
+      </a>
+      <a
+        routerLink="/home/regra-bloqueio"
+        routerLinkActive="rules-page__menu-link--active"
+        class="rules-page__menu-link"
+      >
+        Regra de Bloqueio
+      </a>
+      <button
+        type="button"
+        class="rules-page__menu-link rules-page__menu-link--button"
+        (click)="onLogout()"
+      >
+        Logout
+      </button>
+    </nav>
+  </header>
+
+  <section class="rules-page__card">
+    <span class="rules-page__kicker">Payflow Admin</span>
+    <h1>Regra de Bloqueio</h1>
+
+    @if (isLoading()) {
+      <p class="rules-page__helper">Carregando regras de bloqueio...</p>
+    } @else {
+      @if (loadError(); as loadError) {
+        <p class="rules-page__error" aria-live="polite">{{ loadError }}</p>
+      }
+
+      @if (showForm) {
+        <form
+          class="rules-form"
+          [formGroup]="blockadeForm"
+          (ngSubmit)="onSubmit()"
+        >
+          <div class="rules-form__field">
+            <label for="qty">Quantidade</label>
+            <input
+              id="qty"
+              type="number"
+              formControlName="qty"
+              placeholder="Ex.: 10"
+            />
+            @if (qtyControl.errors && qtyControl.touched) {
+              <span class="rules-form__error">Informe a quantidade.</span>
+            }
+          </div>
+
+          <div class="rules-form__field">
+            <label for="parameter">Parametro</label>
+            <input
+              id="parameter"
+              type="text"
+              formControlName="parameter"
+              placeholder="Ex.: Tentativas"
+            />
+            @if (parameterControl.errors && parameterControl.touched) {
+              <span class="rules-form__error">Informe o parametro.</span>
+            }
+          </div>
+
+          <div class="rules-form__field">
+            <label for="type-parameter">Tipo do Parametro</label>
+            <select id="type-parameter" formControlName="typeParameter">
+              @for (option of typeParameterOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (typeParameterControl.errors && typeParameterControl.touched) {
+              <span class="rules-form__error"
+                >Informe o tipo do parametro.</span
+              >
+            }
+          </div>
+
+          <div class="rules-form__actions">
+            <button
+              type="submit"
+              class="rules-button rules-button--primary"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                Enviando...
+              } @else {
+                Enviar
+              }
+            </button>
+            <button
+              type="button"
+              class="rules-button rules-button--ghost"
+              (click)="onClear()"
+              [disabled]="isSubmitting()"
+            >
+              Limpar
+            </button>
+          </div>
+
+          @if (submitSuccess(); as submitSuccess) {
+            <p class="rules-page__success" aria-live="polite">
+              {{ submitSuccess }}
+            </p>
+          }
+        </form>
+      } @else {
+        <div
+          class="rules-list"
+          role="list"
+          aria-label="Lista de regras de bloqueio cadastradas"
+        >
+          @for (rule of rules(); track rule.id) {
+            <article class="rules-list__item" role="listitem">
+              <div class="rules-list__grid">
+                <div>
+                  <span class="rules-list__label">Quantidade</span>
+                  <strong>{{ rule.qty }}</strong>
+                </div>
+                <div>
+                  <span class="rules-list__label">Parametro</span>
+                  <strong>{{ rule.parameter }}</strong>
+                </div>
+                <div>
+                  <span class="rules-list__label">Tipo do Parametro</span>
+                  <strong>{{
+                    getTypeParameterDescription(rule.typeParameter)
+                  }}</strong>
+                </div>
+              </div>
+
+              <div class="rules-list__actions">
+                <button
+                  type="button"
+                  class="rules-button rules-button--danger"
+                  (click)="openRemoveModal(rule.id)"
+                >
+                  Deletar
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+  </section>
+
+  @if (isRemoveModalOpen()) {
+    <div
+      class="rules-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="remove-modal-title"
+    >
+      <div class="rules-modal__backdrop" (click)="backToList()"></div>
+      <div class="rules-modal__content">
+        <button
+          type="button"
+          class="rules-modal__close"
+          aria-label="Fechar alerta"
+          (click)="backToList()"
+        >
+          x
+        </button>
+        <h3 id="remove-modal-title">Confirmar exclusao</h3>
+        <p>Tem certeza que deseja excluir essa regra de bloqueio?</p>
+        <div class="rules-modal__actions">
+          <button
+            type="button"
+            class="rules-button rules-button--danger"
+            (click)="onRemove()"
+          >
+            Sim
+          </button>
+          <button
+            type="button"
+            class="rules-button rules-button--ghost"
+            (click)="backToList()"
+          >
+            Nao
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</main>

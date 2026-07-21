@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 
+import { BlockadeRulesPageComponent } from './components/blockade-rules-page/blockade-rules-page.component';
 import { HomePageComponent } from './components/home-page/home-page.component';
-import { InstallmentRulesPageComponent } from './components/installment-rules-page/installment-rules-page.component';
+import { InstallmentRulesPageComponent } from './components/installment-rules-page/installment-rules-page.component'; 
 
 export const HOME_ROUTES: Routes = [
   {
@@ -19,10 +20,6 @@ export const HOME_ROUTES: Routes = [
   },
   {
     path: 'regra-bloqueio',
-    component: HomePageComponent,
-    data: {
-      title: 'Regra de Bloqueio',
-      description: 'Gerencie os criterios de bloqueio para transacoes e lojas.',
-    },
+    component: BlockadeRulesPageComponent,
   },
 ];
